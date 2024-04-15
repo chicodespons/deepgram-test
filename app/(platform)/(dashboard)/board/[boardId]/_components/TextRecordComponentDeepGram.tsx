@@ -99,14 +99,15 @@ const TextRecordComponentDeepGram = () => {
 
               connection.on(LiveTranscriptionEvents.Transcript, (data) => {
                 const words = data.channel.alternatives[0].words;
-                console.log("data: " + data);
+                const isFinal = data.is_final;
                 const newCaption = words
                   .map((word: any) => word.punctuated_word ?? word.word)
                   .join(" ");
                 if (newCaption !== "") {
                   setCaption(newCaption);
-                  console.log(newCaption);
-                  setFullTranscription((prev) => prev + ' ' + newCaption);
+                  if(isFinal) {
+                    setFullTranscription((prev) => prev + ' ' + newCaption);
+                  }
                 }
               });
 
