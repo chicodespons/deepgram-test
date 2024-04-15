@@ -99,6 +99,7 @@ const TextRecordComponentDeepGram = () => {
 
               connection.on(LiveTranscriptionEvents.Transcript, (data) => {
                 const words = data.channel.alternatives[0].words;
+                console.log("data: " + data);
                 const newCaption = words
                   .map((word: any) => word.punctuated_word ?? word.word)
                   .join(" ");
