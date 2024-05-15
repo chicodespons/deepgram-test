@@ -146,12 +146,12 @@ const TextRecordComponentDeepGram = () => {
             name='language'
             >
           </select>
-          <button
+          <Button variant="transparent"
           onClick={() => toggleMic()}
            >
             { micOpen? <Mic className='h-4 w-4'/> : <MicOff className='h-4 w-4'/> }
             
-          </button>
+          </Button>
         </div>
       </div>
       <div className='flex flex-col space-y-4'>

@@ -3,6 +3,7 @@ import { auth } from '@clerk/nextjs';
 import { notFound, redirect } from 'next/navigation';
 import React from 'react'
 import BoardNavBar from './_components/board-navbar';
+import { defaultImages } from '@/constants/images';
 
 export async function generateMetadata({
     params
@@ -55,13 +56,15 @@ const BoardIdLayout = async ({
         notFound();
     }
 
+    const backgroundImage = board?.imageFullUrl || defaultImages[2].urls.full
+
   return (
     <div
-    className='relative h-full bg-no-repeat bg-cover bg-center'
-    style={{backgroundImage : `url(${board.imageFullUrl})`}}>
+    className='relative bg-no-repeat bg-cover bg-center min-h-screen'
+    style={{backgroundImage : `url(${backgroundImage})`}}>
         <BoardNavBar data={board} />
         <div className='absolute inset-0 bg-black/10' />
-        <main className='relative pt-28 h-full'>
+        <main className='relative pt-28 '>
       {children}
       </main>
     </div>
