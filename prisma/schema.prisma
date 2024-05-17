@@ -24,6 +24,23 @@ model Board {
   imageUserName String @db.Text
   imageLinkHTML String @db.Text
 
+  textAreas TextAreaComponent[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model TextAreaComponent {
+  id String @id @default(uuid())
+  title String
+  description String @db.Text
+  content String? @db.Text
+
+  boardId String
+  board Board @relation(fields: [boardId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([boardId])
 }

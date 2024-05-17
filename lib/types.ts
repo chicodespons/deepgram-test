@@ -34,3 +34,12 @@ export const DeleteBoardSchema =  z.object({
 });
 
 export type DeleteBoard = z.infer<typeof DeleteBoardSchema>;
+
+export const CreateTextAreaComponentSchema = z.object({
+    title: z.string().min(1, "Title is required").max(100, "Title is too long"),
+    description: z.string().min(1, "Description is required").max(500, "Description is too long"),
+    content: z.string().optional(),
+
+})
+
+export type CreateTextAreaComponent = z.infer<typeof CreateTextAreaComponentSchema>

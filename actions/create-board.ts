@@ -41,7 +41,7 @@ export async function createBoard(newBoard: unknown) {
       imageUserName, 
     ] = image.split("|");
 
-    if (!imageId || !imageThumbUrl || !imageFullUrl || !imageLinkHtml || !imageUserName){
+    if (!imageId || !imageThumbUrl || !imageFullUrl || !imageLinkHtml || !imageUserName || !title){
       return {
         error: "Missing fields. Failed to create board."
       }

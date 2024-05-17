@@ -8,11 +8,13 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
   DialogFooter,
-  DialogClose
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import { CreateTextAreaComponentSchema } from '@/lib/types';
+import toast from "react-hot-toast";
+import { useAuth } from "@clerk/nextjs";
+import { createTextAreaComponent } from '@/actions/create-textAreaComponent';
 
 interface TextAreaInfo {
   title: string;
@@ -26,6 +28,8 @@ const TextAreaComponent = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+
+  const {isLoaded, orgId, userId} = useAuth();
 
   const handleOpenModal = (index: number | null) => {
     if (index !== null && textAreas[index]) {
@@ -43,10 +47,27 @@ const TextAreaComponent = () => {
     setDialogOpen(false);
   };
 
-  const handleConfirmModal = () => {
+  const handleConfirmModal = async() => {
     const updatedInfo = { title, description, content: '' };
+
+    const validation = CreateTextAreaComponentSchema.safeParse(updatedInfo);
+    if (!validation.success){
+        let errorMessage = "";
+        validation.error.issues.forEach((issue) => {
+            errorMessage = errorMessage + issue.path[0] + ": " + issue.message + ". ";
+        })
+
+        toast.error(errorMessage);
+        return;
+    }
+
+    if(!isLoaded && !orgId && !userId) {
+        toast.error("Unauthorized");
+    }
+    
     if (currentEditingIndex === null) {
       setTextAreas([...textAreas, updatedInfo]);
+      const response = await createTextAreaComponent(validation.data);
     } else {
       const updatedTextAreas = [...textAreas];
       updatedTextAreas[currentEditingIndex] = updatedInfo;
