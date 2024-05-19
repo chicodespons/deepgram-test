@@ -1,6 +1,6 @@
 "use server";
 
-import { db } from "@/lib/db";
+import { supabase } from "@/lib/supabase";
 import { auth } from "@clerk/nextjs";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -15,19 +15,18 @@ export async function deleteBoard(id:string) {
         }
     }
 
-    let board;
+    const { data, error } = await supabase
+        .from('Board')
+        .delete()
+        .eq('id', id)
+        .eq('organisation_id', orgId)
+        .single();
 
-    try {
-        board =  await db.board.delete({
-            where: {
-                id: id,
-                organisationId: orgId
-            }
-        });
-    } catch (error) {
+    if (error) {
+        console.error("Error deleting board: ", error);
         return {
-            error: "database error : Failed to delete board."
-        }
+            error: "Database error: Failed to delete board."
+        };
     }
 
     revalidatePath(`/organization/${orgId}`);

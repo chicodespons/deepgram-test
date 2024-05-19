@@ -2,11 +2,11 @@ import { HelpCircle, User2 } from 'lucide-react'
 import React from 'react'
 import Hint from '@/components/hint'
 import FormPopover from '@/components/form/form-popover'
-import { db } from '@/lib/db'
 import { auth } from '@clerk/nextjs'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { Skeleton } from '@/components/ui/skeleton'
+import {getBoards} from "@/actions/getBoards";
 
 const BoardList = async () => {
 
@@ -16,15 +16,7 @@ const BoardList = async () => {
     return redirect("/select-org");
   }
 
-  const boards = await db.board.findMany({
-    where: {
-      organisationId: orgId,
-    },
-    orderBy: {
-      createdAt: "desc"
-    }
-  });
-
+  const boards = await getBoards(orgId);
 
   return (
     <div className='space-y-4'>
@@ -38,7 +30,7 @@ const BoardList = async () => {
               key={board.id}
               href={`/board/${board.id}`}
               className='group relative aspect-video bg-no-repeat bg-center bg-cover bg-sky-700 rounded-sm h-full w-full p*2 overflow-hidden'
-              style={{backgroundImage: `url(${board.imageThumbUrl})`}}>
+              style={{backgroundImage: `url(${board.image_thumb_url})`}}>
                 <div className='absolute inset-0 bg-black/30 group-hover:bg-black/40 transition' />
                 <p className='relative font-semibold text-white'>
                   {board.title}

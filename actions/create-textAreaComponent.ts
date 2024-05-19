@@ -2,7 +2,7 @@
 
 import { CreateTextAreaComponentSchema } from "@/lib/types";
 import { auth } from "@clerk/nextjs";
-import { db } from "@/lib/db";
+import { supabase } from "@/lib/supabase";
 
 export async function createTextAreaComponent(newTextAreaComponent: unknown) {
 
@@ -41,13 +41,13 @@ export async function createTextAreaComponent(newTextAreaComponent: unknown) {
     }
 
     // try {
-
+    //
     //   textAreaComponent = await db.textAreaComponent.create({
     //     data: {
     //       title: title,
     //       description: description,
     //       content : content,
-    //       boardId : 
+    //       boardId :
     //     }
     //   });
     // }

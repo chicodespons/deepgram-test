@@ -1,6 +1,6 @@
 "use server";
 
-import { db } from "@/lib/db";
+import { supabase } from "@/lib/supabase";
 import { UpdateBoardSchema } from "@/lib/types";
 import { auth } from "@clerk/nextjs";
 import { revalidatePath } from "next/cache";
@@ -34,26 +34,24 @@ export async function updateBoard(updatedBoard: unknown) {
 
   const { title, id } = result.data
 
-  try {
-    board = await db.board.update({
-        where: {
-            id : id,
-            organisationId : orgId,
-        },
-        data: {
-            title : title
-        }
-    }) 
+    const { data, error } = await supabase
+        .from('Board')
+        .update({ title })
+        .eq('id', id)
+        .eq('organisation_id', orgId)
+        .single();
 
-    revalidatePath(`/board/${id}`)
-    return {
-      succes: true,
-      data: board
-    };
-  } catch (error) {
-    return {
-      error: "database error : Failed to update board title"
+    if (error) {
+        console.error("Error updating board: ", error);
+        return {
+            error: "Database error: Failed to update board title"
+        };
     }
-  }
+
+    revalidatePath(`/board/${id}`);
+    return {
+        success: true,
+        data
+    };
 
   }

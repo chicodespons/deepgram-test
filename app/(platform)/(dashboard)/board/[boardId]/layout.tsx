@@ -1,9 +1,10 @@
-import { db } from '@/lib/db';
+import { supabase } from '@/lib/supabase';
 import { auth } from '@clerk/nextjs';
 import { notFound, redirect } from 'next/navigation';
 import React from 'react'
 import BoardNavBar from './_components/board-navbar';
 import { defaultImages } from '@/constants/images';
+import {findUniqueBoard} from "@/actions/findUniqueBoard";
 
 export async function generateMetadata({
     params
@@ -18,12 +19,7 @@ export async function generateMetadata({
         }
     }
 
-    const board = await db.board.findUnique({
-        where: {
-            id: params.boardId,
-            organisationId: orgId
-        }
-    });
+    const board = await findUniqueBoard(params.boardId, orgId);
 
     return {
         title: board?.title || "Board"
@@ -45,18 +41,15 @@ const BoardIdLayout = async ({
         redirect("/select-org");
     };
 
-    const board = await db.board.findUnique({
-        where: {
-            id: params.boardId,
-            organisationId: orgId
-        }
-    });
+    const board = await findUniqueBoard(params.boardId, orgId);
+
+    console.log("board: ", board);
 
     if(!board){
         notFound();
     }
 
-    const backgroundImage = board?.imageFullUrl || defaultImages[2].urls.full
+    const backgroundImage = board?.image_full_url || defaultImages[2].urls.full
 
   return (
     <div

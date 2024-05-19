@@ -35,7 +35,21 @@ export const DeleteBoardSchema =  z.object({
 
 export type DeleteBoard = z.infer<typeof DeleteBoardSchema>;
 
+export interface Board {
+    id: string;
+    organisation_id: string;
+    title: string;
+    image_id: string;
+    image_thumb_url: string;
+    image_full_url: string;
+    image_link_html: string;
+    image_user_name: string;
+    created_at?: string;
+    updated_at?: string;
+}
+
 export const CreateTextAreaComponentSchema = z.object({
+    index: z.number().int().nonnegative(),
     title: z.string().min(1, "Title is required").max(100, "Title is too long"),
     description: z.string().min(1, "Description is required").max(500, "Description is too long"),
     content: z.string().optional(),
@@ -43,3 +57,4 @@ export const CreateTextAreaComponentSchema = z.object({
 })
 
 export type CreateTextAreaComponent = z.infer<typeof CreateTextAreaComponentSchema>
+

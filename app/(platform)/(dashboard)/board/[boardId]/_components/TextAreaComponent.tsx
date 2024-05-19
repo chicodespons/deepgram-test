@@ -17,9 +17,11 @@ import { useAuth } from "@clerk/nextjs";
 import { createTextAreaComponent } from '@/actions/create-textAreaComponent';
 
 interface TextAreaInfo {
+  index: number;
   title: string;
   description: string;
   content: string;
+
 }
 
 const TextAreaComponent = () => {
@@ -48,7 +50,7 @@ const TextAreaComponent = () => {
   };
 
   const handleConfirmModal = async() => {
-    const updatedInfo = { title, description, content: '' };
+    const updatedInfo = { index: currentEditingIndex !==null? currentEditingIndex : textAreas.length, title, description, content: '' };
 
     const validation = CreateTextAreaComponentSchema.safeParse(updatedInfo);
     if (!validation.success){
@@ -81,6 +83,7 @@ const TextAreaComponent = () => {
     if (currentEditingIndex !== null) {
         delete allTextAreas[currentEditingIndex];
         setTextAreas(allTextAreas);
+        setCurrentEditingIndex(null);
     }
     
   }

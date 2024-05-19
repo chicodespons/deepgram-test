@@ -1,9 +1,10 @@
 "use server";
 
-import { db } from "@/lib/db";
-import { CreateBoardSchema } from "@/lib/types";
+import { supabase } from "@/lib/supabase";
+import {Board, CreateBoardSchema} from "@/lib/types";
 import { auth } from "@clerk/nextjs";
 import { revalidatePath } from "next/cache";
+import {isBoard} from "@/lib/guards";
 
 export async function createBoard(newBoard: unknown) {
 
@@ -47,32 +48,48 @@ export async function createBoard(newBoard: unknown) {
       }
     }
 
-  try {
+    const { data, error } = await supabase
+          .from('Board')
+          .insert([
+            {
+              organisation_id : orgId,
+              title: title,
+              image_id: imageId,
+              image_thumb_url: imageThumbUrl,
+              image_full_url: imageFullUrl,
+              image_link_html: imageLinkHtml,
+              image_user_name: imageUserName
+            }
+          ])
+          .select()
+          .single();
 
-    board = await db.board.create({
-      data: {
-        organisationId : orgId,
-        title : title,
-        imageId : imageId,
-        imageThumbUrl : imageThumbUrl,
-        imageFullUrl : imageFullUrl,
-        imageLinkHTML : imageLinkHtml,
-        imageUserName : imageUserName
-      }
-    });
-
-    revalidatePath(`/board/${board.id}`)
-    return {
-      succes: true,
-      boardId: board.id
-    };
-  } catch (error) {
+  if (error) {
     console.error("Error creating board: ", error);
     return {
-      error: "database error creating board"
+      error: `database error creating board${error}`
     }
-    
   }
+
+  if (!data) {
+    return {
+      error: "Unexpected error: No data returned or data is invalid"
+    };
+  }
+
+  if (isBoard(data)) {
+    // @ts-ignore
+    revalidatePath(`/board/${data.id}`);
+    return {
+      succes: true,
+      // @ts-ignore
+      boardId: data.id
+    }
+  }
+
+
+
+
 
     
   }
