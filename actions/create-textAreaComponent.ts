@@ -2,7 +2,6 @@
 
 import { CreateTextAreaComponentSchema } from "@/lib/types";
 import { auth } from "@clerk/nextjs";
-import { supabase } from "@/lib/supabase";
 
 export async function createTextAreaComponent(newTextAreaComponent: unknown) {
 
@@ -30,7 +29,6 @@ export async function createTextAreaComponent(newTextAreaComponent: unknown) {
 
     }
 
-    let textAreaComponent;
 
     const { title, description, content} = result.data
 

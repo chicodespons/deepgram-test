@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase';
+
 import { auth } from '@clerk/nextjs';
 import { notFound, redirect } from 'next/navigation';
 import React from 'react'
@@ -39,7 +39,7 @@ const BoardIdLayout = async ({
 
     if(!orgId){
         redirect("/select-org");
-    };
+    }
 
     const board = await findUniqueBoard(params.boardId, orgId);
 

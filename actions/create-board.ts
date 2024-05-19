@@ -31,8 +31,6 @@ export async function createBoard(newBoard: unknown) {
       };
   }
 
-  let board;
-
   const { title, image } = result.data
     const [
       imageId,

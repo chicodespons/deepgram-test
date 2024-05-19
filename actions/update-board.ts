@@ -30,7 +30,6 @@ export async function updateBoard(updatedBoard: unknown) {
       };
   }
 
-  let board;
 
   const { title, id } = result.data
 
