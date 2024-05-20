@@ -1,6 +1,8 @@
+"use server";
+
 import {supabase} from "@/lib/supabase";
 
-export async function getBoards(orgId: String) {
+export async function getBoards(orgId: string) {
     const { data, error } = await supabase
         .from('Board')
         .select('*')
@@ -9,8 +11,15 @@ export async function getBoards(orgId: String) {
 
     if (error) {
         console.error("Error fetching boards: ", error);
-        throw new Error("Database error: Failed to fetch boards");
+        return {
+            data: null,
+            error: error
+        }
     }
 
-    return data;
+    return {
+        data,
+        error: null
+    }
+
 }

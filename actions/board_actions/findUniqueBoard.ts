@@ -1,6 +1,8 @@
+"use server";
+
 import {supabase} from "@/lib/supabase";
 
-export async function findUniqueBoard(boardId: String, orgId: String) {
+export async function findUniqueBoard(boardId: string, orgId: string) {
     const { data, error } = await supabase
         .from('Board')
         .select('*')

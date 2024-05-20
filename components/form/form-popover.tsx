@@ -1,12 +1,12 @@
 "use client";
 
 import {Popover, PopoverClose, PopoverContent, PopoverTrigger} from "@/components/ui/popover";
-import { createBoard } from "@/actions/create-board";
+import { createBoard } from "@/actions/board_actions/create-board";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 import { FormInput } from "@/components/form/form-input";
 import { FormSubmit } from "@/components/form/form-submit";
-import { CreateBoardSchema } from "@/lib/types";
+import { CreateBoardSchema } from "@/lib/board-types/types";
 import toast from "react-hot-toast";
 import { useAuth } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
@@ -58,11 +58,11 @@ const FormPopover = ({
        
        if (isLoaded && orgId && userId) {
         const response = await createBoard(result.data);
-        if(response.error) {
-            toast.error(response.error);
+        if(response?.error) {
+            toast.error(response?.error);
         }
 
-        if(response.succes && response.boardId) {
+        if(response?.succes && response.boardId) {
             toast.success("Board created!");
             closeRef.current?.click();
             router.push(`/board/${response.boardId}`);

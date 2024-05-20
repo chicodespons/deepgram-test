@@ -1,5 +1,5 @@
 "use client";
-import { deleteBoard } from "@/actions/delete-board";
+import { deleteBoard } from "@/actions/board_actions/delete-board";
 import { Button } from "@/components/ui/button";
 import {Popover, PopoverClose, PopoverContent, PopoverTrigger} from "@/components/ui/popover"
 import { useAuth } from "@clerk/nextjs";

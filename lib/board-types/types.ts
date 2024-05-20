@@ -48,13 +48,4 @@ export interface Board {
     updated_at?: string;
 }
 
-export const CreateTextAreaComponentSchema = z.object({
-    index: z.number().int().nonnegative(),
-    title: z.string().min(1, "Title is required").max(100, "Title is too long"),
-    description: z.string().min(1, "Description is required").max(500, "Description is too long"),
-    content: z.string().optional(),
-
-})
-
-export type CreateTextAreaComponent = z.infer<typeof CreateTextAreaComponentSchema>
 

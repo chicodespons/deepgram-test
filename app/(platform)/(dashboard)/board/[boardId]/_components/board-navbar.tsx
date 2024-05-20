@@ -1,7 +1,8 @@
-import { Board } from '@prisma/client';
+
 import React from 'react'
 import BoardTitleForm from './board-title-form';
 import BoardOptions from './board-options';
+import {Board} from "@/lib/board-types/types";
 
 interface BoardNavBarProps {
     data: Board;

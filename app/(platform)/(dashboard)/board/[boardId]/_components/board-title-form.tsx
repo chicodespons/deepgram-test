@@ -1,9 +1,9 @@
 "use client";
 
-import { updateBoard } from "@/actions/update-board";
+import { updateBoard } from "@/actions/board_actions/update-board";
 import { FormInput } from "@/components/form/form-input";
 import { Button } from "@/components/ui/button";
-import { UpdateBoardSchema } from "@/lib/types";
+import { UpdateBoardSchema } from "@/lib/board-types/types";
 import { useAuth } from "@clerk/nextjs";
 import { Board } from "@prisma/client";
 import { useRouter } from "next/navigation";

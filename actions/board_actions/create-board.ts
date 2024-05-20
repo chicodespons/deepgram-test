@@ -1,10 +1,10 @@
 "use server";
 
 import { supabase } from "@/lib/supabase";
-import {Board, CreateBoardSchema} from "@/lib/types";
+import { CreateBoardSchema} from "@/lib/board-types/types";
 import { auth } from "@clerk/nextjs";
 import { revalidatePath } from "next/cache";
-import {isBoard} from "@/lib/guards";
+import {isBoard} from "@/lib/board-types/guards";
 
 export async function createBoard(newBoard: unknown) {
 
@@ -65,7 +65,7 @@ export async function createBoard(newBoard: unknown) {
   if (error) {
     console.error("Error creating board: ", error);
     return {
-      error: `database error creating board${error}`
+      error: `database error creating board: ${error}`
     }
   }
 

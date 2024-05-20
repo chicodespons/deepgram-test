@@ -1,7 +1,7 @@
 "use server";
 
 import { supabase } from "@/lib/supabase";
-import { UpdateBoardSchema } from "@/lib/types";
+import { UpdateBoardSchema } from "@/lib/board-types/types";
 import { auth } from "@clerk/nextjs";
 import { revalidatePath } from "next/cache";
 
@@ -38,6 +38,7 @@ export async function updateBoard(updatedBoard: unknown) {
         .update({ title })
         .eq('id', id)
         .eq('organisation_id', orgId)
+        .select()
         .single();
 
     if (error) {

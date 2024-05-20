@@ -4,7 +4,7 @@ import { notFound, redirect } from 'next/navigation';
 import React from 'react'
 import BoardNavBar from './_components/board-navbar';
 import { defaultImages } from '@/constants/images';
-import {findUniqueBoard} from "@/actions/findUniqueBoard";
+import {findUniqueBoard} from "@/actions/board_actions/findUniqueBoard";
 
 export async function generateMetadata({
     params

@@ -1,5 +1,5 @@
 "use client"
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import { Button} from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { PlusCircle, MinusCircle, SettingsIcon, PlayCircleIcon } from 'lucide-react';
@@ -11,20 +11,24 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { CreateTextAreaComponentSchema } from '@/lib/types';
+import { CreateTextAreaComponentSchema } from '@/lib/textareacomponent-types/types';
 import toast from "react-hot-toast";
 import { useAuth } from "@clerk/nextjs";
-import { createTextAreaComponent } from '@/actions/create-textAreaComponent';
+import { createTextAreaComponent } from '@/actions/text_area_component_actions/create-textAreaComponent';
+import {useParams} from "next/navigation";
+import {getTextAreasForBoardId} from "@/actions/text_area_component_actions/getTextAreasForBoardId";
+import {updateTextAreaComponent} from "@/actions/text_area_component_actions/updateTextAreaComponent";
+import {deleteTextAreaComponent} from "@/actions/text_area_component_actions/deleteTextAreaComponent";
 
 interface TextAreaInfo {
-  index: number;
+  row_index: number;
   title: string;
   description: string;
   content: string;
-
 }
 
 const TextAreaComponent = () => {
+  const params = useParams<{boardId: string}>();
   const [textAreas, setTextAreas] = useState<TextAreaInfo[]>([]);
   const [currentEditingIndex, setCurrentEditingIndex] = useState<number | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -32,6 +36,21 @@ const TextAreaComponent = () => {
   const [description, setDescription] = useState('');
 
   const {isLoaded, orgId, userId} = useAuth();
+
+  useEffect(() => {
+    if (params.boardId) {
+      const fetchTextAreas = async () => {
+          const response = await getTextAreasForBoardId(params.boardId);
+          if (response.error) {
+            toast.error('Failed to load textAreas: ' + response.error);
+          } else {
+            setTextAreas(response.data);
+          }
+      };
+
+      fetchTextAreas(); // Call the async function immediately
+    }
+  }, [params.boardId]);
 
   const handleOpenModal = (index: number | null) => {
     if (index !== null && textAreas[index]) {
@@ -50,7 +69,7 @@ const TextAreaComponent = () => {
   };
 
   const handleConfirmModal = async() => {
-    const updatedInfo = { index: currentEditingIndex !==null? currentEditingIndex : textAreas.length, title, description, content: '' };
+    const updatedInfo = { row_index: currentEditingIndex !==null? currentEditingIndex : textAreas.length, title, description, content: '' };
 
     const validation = CreateTextAreaComponentSchema.safeParse(updatedInfo);
     if (!validation.success){
@@ -69,24 +88,53 @@ const TextAreaComponent = () => {
     
     if (currentEditingIndex === null) {
       setTextAreas([...textAreas, updatedInfo]);
-      const response = await createTextAreaComponent(validation.data);
+      const response = await createTextAreaComponent(validation.data, params.boardId);
+      if (response?.error) {
+        toast.error(response?.error);
+      }
+
+      if (response?.succes) {
+        toast.success("TextAreaComponent created!");
+      }
     } else {
       const updatedTextAreas = [...textAreas];
       updatedTextAreas[currentEditingIndex] = updatedInfo;
       setTextAreas(updatedTextAreas);
+      const response = await updateTextAreaComponent(validation.data, params.boardId, currentEditingIndex);
+      if (response?.error) {
+        toast.error(response?.error);
+      }
+
+      if (response?.success) {
+        toast.success("TextAreaComponent updated!");
+      }
     }
     handleCloseModal();
   };
 
-  const handleDeleteTextArea = () => {
-    const allTextAreas = [... textAreas];
-    if (currentEditingIndex !== null) {
-        delete allTextAreas[currentEditingIndex];
-        setTextAreas(allTextAreas);
-        setCurrentEditingIndex(null);
+  const handleDeleteTextArea = async () => {
+    if (textAreas.length === 0) {
+      toast.error("No TextAreaComponent to delete");
+      return;
     }
-    
-  }
+
+    const indexToDelete = currentEditingIndex !== null ? currentEditingIndex : textAreas.length - 1;
+    const allTextAreas = [...textAreas];
+    const deletedTextArea = allTextAreas.splice(indexToDelete, 1);
+
+    const response = await deleteTextAreaComponent(deletedTextArea[0].row_index, params.boardId);
+    if (response?.error) {
+      toast.error(response?.error);
+      // Revert state change if deletion fails
+      setTextAreas([...textAreas]);
+    } else {
+      toast.success("TextAreaComponent deleted!");
+      setTextAreas(allTextAreas);
+      setCurrentEditingIndex(null);
+    }
+
+    handleCloseModal();
+  };
 
   return (
     <div className='flex flex-col space-y-4 p-5'>
@@ -110,7 +158,7 @@ const TextAreaComponent = () => {
         <Button variant="transparent" onClick={() => handleOpenModal(null)}>
             <PlusCircle />
         </Button>
-        <Button variant="transparent" onClick={() => setTextAreas(textAreas.slice(0, -1))}>
+        <Button variant="transparent" onClick={handleDeleteTextArea}>
             <MinusCircle />
         </Button>
       </div>
@@ -138,6 +186,6 @@ const TextAreaComponent = () => {
     
     </div>
   );
-};
+}
 
 export default TextAreaComponent;

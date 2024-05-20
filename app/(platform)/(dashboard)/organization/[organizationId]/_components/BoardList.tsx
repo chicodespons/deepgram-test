@@ -6,7 +6,9 @@ import { auth } from '@clerk/nextjs'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { Skeleton } from '@/components/ui/skeleton'
-import {getBoards} from "@/actions/getBoards";
+import {getBoards} from "@/actions/board_actions/getBoards";
+import {Board} from "@/lib/board-types/types";
+import {toast} from "react-hot-toast";
 
 const BoardList = async () => {
 
@@ -16,7 +18,11 @@ const BoardList = async () => {
     return redirect("/select-org");
   }
 
-  const boards = await getBoards(orgId);
+  const {data: boards, error} = await getBoards(orgId);
+
+  if (error) {
+      toast.error("Failed to load boards: " + error);
+  }
 
   return (
     <div className='space-y-4'>
@@ -25,7 +31,7 @@ const BoardList = async () => {
             Your Boards
         </div>
         <div className='grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4'>
-          {boards.map((board) => (
+          {boards?.map((board: Board) => (
             <Link
               key={board.id}
               href={`/board/${board.id}`}
