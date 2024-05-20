@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Mic, MicOff } from 'lucide-react';
-import { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { 
     createClient, 
     CreateProjectKeyResponse,
@@ -11,9 +11,14 @@ import {
     LiveTranscriptionEvents,
 } from "@deepgram/sdk";
 import { useQueue } from "@uidotdev/usehooks";
+import {useParams} from "next/navigation";
+import {saveFullTranscription} from "@/actions/text_record_component_actions/saveFullTranscription";
+import {toast} from "react-hot-toast";
+import {getFullTranscription} from "@/actions/text_record_component_actions/getFullTranscription";
 
 const TextRecordComponentDeepGram = () => {
 
+    const params = useParams<{boardId: string}>();
     const { add, remove, first, size, queue } = useQueue<any>([]);
     const [apiKey, setApiKey] = useState<CreateProjectKeyResponse | null>();
     const [connection, setConnection] = useState<LiveClient | null>();
@@ -26,6 +31,7 @@ const TextRecordComponentDeepGram = () => {
     const [userMedia, setUserMedia] = useState<MediaStream | null>();
     const [caption, setCaption] = useState<string | null>();
     const [fullTranscription, setFullTranscription] = useState<string>('');
+    const [isSaved, setIsSaved] = useState(false);
 
     const toggleMic = useCallback(async () => {
         if (microphone && userMedia) {
@@ -137,35 +143,81 @@ const TextRecordComponentDeepGram = () => {
         processQueue();
       }, [connection, queue, remove, first, size, isProcessing, isListening]);
 
+    const handleSave = useCallback(async () => {
+        const response = await saveFullTranscription(fullTranscription, params.boardId);
+        if (response.error) {
+            toast.error(response.error);
+        } else {
+            toast.success("Full Transcription saved");
+            setIsSaved(true);
+        }
+    }, [fullTranscription, params.boardId]);
 
-  return (
-    <div className='p-5'>
-      <div className="flex items-center mb-3 ">
-        <div className="ml-auto flex gap-x-4">
-           <select className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-blue-500"
-            name='language'
-            >
-          </select>
-          <Button variant="transparent"
-          onClick={() => toggleMic()}
-           >
-            { micOpen? <Mic className='h-4 w-4'/> : <MicOff className='h-4 w-4'/> }
-            
-          </Button>
+    useEffect(() => {
+        const saveTranscription = async () => {
+            await handleSave();
+        };
+        const intervalId = setInterval(saveTranscription, 600000);
+        return () => clearInterval(intervalId);
+    }, [handleSave]);
+
+    const handleFullTranscriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        setFullTranscription(e.target.value);
+        setIsSaved(false);
+    };
+
+    useEffect(() => {
+        const fetchFullTranscription = async () => {
+            const response = await getFullTranscription(params.boardId);
+            if (response.error) {
+                toast.error(response.error);
+            } else {
+                console.log("Fetched full transcription:", response?.data?.fullTranscription);
+                setFullTranscription(response?.data?.fullTranscription || '');
+            }
+        };
+
+        fetchFullTranscription();
+    }, [params.boardId]);
+
+    return (
+        <div className='p-5'>
+            <div className='flex flex-col space-y-4'>
+                <div className="flex items-center justify-between">
+                    <h2 className='text-xl text-white font-bold'>Realtime transcription by Deepgram</h2>
+                    <div className="flex gap-x-4">
+                        <select
+                            className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-blue-500"
+                            name='language'
+                        >
+                        </select>
+                        <Button variant="transparent" onClick={() => toggleMic()}>
+                            {micOpen ? <Mic className='h-4 w-4'/> : <MicOff className='h-4 w-4'/>}
+                        </Button>
+                    </div>
+                </div>
+                <Textarea
+                    value={caption ?? "** Realtime transcription by Deepgram **"}
+                    onChange={(e) => setCaption(e.target.value)}
+                />
+                <div className="flex items-center justify-between">
+                    <h2 className="text-xl text-white font-bold">Full Transcription</h2>
+                    <Button
+                        variant="transparent"
+                        onClick={handleSave}
+                        className={isSaved? "bg-green-500" : "bg-red-500"}
+                    >
+                        {isSaved ? "Saved" : "Save"}
+                    </Button>
+                </div>
+                <Textarea
+                    value={fullTranscription}
+                    onChange={handleFullTranscriptionChange}
+                />
+            </div>
         </div>
-      </div>
-      <div className='flex flex-col space-y-4'>
-      <Textarea 
-                value={caption ?? "** Realtime transcription by Deepgram **"} 
-                onChange={(e) => setCaption(e.target.value)} 
-            />
-        <Textarea 
-        value={fullTranscription}
-        readOnly
-        />
-      </div>
-    </div>
-  )
+    );
+
 }
 
 export default TextRecordComponentDeepGram
