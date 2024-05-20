@@ -3,9 +3,8 @@
 import { updateBoard } from "@/actions/board_actions/update-board";
 import { FormInput } from "@/components/form/form-input";
 import { Button } from "@/components/ui/button";
-import { UpdateBoardSchema } from "@/lib/board-types/types";
+import {Board, UpdateBoardSchema} from "@/lib/board-types/types";
 import { useAuth } from "@clerk/nextjs";
-import { Board } from "@prisma/client";
 import { useRouter } from "next/navigation";
 import { ElementRef, useRef, useState } from "react";
 import toast from "react-hot-toast";
@@ -70,7 +69,7 @@ const BoardTitleForm = ({
         toast.error(response.error);
       }
 
-      if (response.succes && response.data){
+      if (response.data && response.success){
         toast.success(`Board "${response.data.title}" updated!`);
         setTitle(response.data.title);
         disableEditing();
