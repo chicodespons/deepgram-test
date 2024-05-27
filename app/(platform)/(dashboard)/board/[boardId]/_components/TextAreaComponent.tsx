@@ -19,6 +19,8 @@ import {useParams} from "next/navigation";
 import {getTextAreasForBoardId} from "@/actions/text_area_component_actions/getTextAreasForBoardId";
 import {updateTextAreaComponent} from "@/actions/text_area_component_actions/updateTextAreaComponent";
 import {deleteTextAreaComponent} from "@/actions/text_area_component_actions/deleteTextAreaComponent";
+import useTranscriptionStore from '@/zustandStore/useTranscriptionStore';
+import { getMeetingSummary } from '@/app/api/openai/summary/getMeetingSummary';
 
 interface TextAreaInfo {
   row_index: number;
@@ -34,6 +36,7 @@ const TextAreaComponent = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const fullTranscription = useTranscriptionStore((state) => state.fullTranscription);
 
   const {isLoaded, orgId, userId} = useAuth();
 
@@ -136,6 +139,22 @@ const TextAreaComponent = () => {
     handleCloseModal();
   };
 
+  const handleSummary = async (index: number) => {
+    if (fullTranscription) {
+      const response = await getMeetingSummary(fullTranscription);
+      if (response) {
+        const summary = response.choices[0].message.content;
+        setTextAreas(prevTextAreas => prevTextAreas.map((textArea, idx) => idx === index ? { ...textArea, content: summary || '' } : textArea));
+        console.log(response.choices[0].message.content);
+        toast.success("Meeting summary generated!");
+      } else {
+        toast.error("Failed to generate meeting summary.");
+      }
+    } else {
+      toast.error("No transcription available to summarize.")
+    }
+  };
+
   return (
     <div className='flex flex-col space-y-4 p-5'>
       {textAreas.map((textArea, index) => (
@@ -147,7 +166,7 @@ const TextAreaComponent = () => {
                     <SettingsIcon size={18}/>
                 </Button>
                 <Button variant="transparent">
-                    <PlayCircleIcon size={18} />
+                    <PlayCircleIcon size={18} onClick={() => handleSummary(index)} />
                 </Button>
             </div>
           </div>

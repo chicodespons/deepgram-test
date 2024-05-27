@@ -15,6 +15,7 @@ import {useParams} from "next/navigation";
 import {saveFullTranscription} from "@/actions/text_record_component_actions/saveFullTranscription";
 import {toast} from "react-hot-toast";
 import {getFullTranscription} from "@/actions/text_record_component_actions/getFullTranscription";
+import useTranscriptionStore from '@/zustandStore/useTranscriptionStore';
 
 const TextRecordComponentDeepGram = () => {
 
@@ -30,7 +31,8 @@ const TextRecordComponentDeepGram = () => {
     const [microphone, setMicrophone] = useState<MediaRecorder | null>();
     const [userMedia, setUserMedia] = useState<MediaStream | null>();
     const [caption, setCaption] = useState<string | null>();
-    const [fullTranscription, setFullTranscription] = useState<string>('');
+    const fullTranscription = useTranscriptionStore((state) => state.fullTranscription);
+    const setFullTranscription = useTranscriptionStore((state) => state.setFullTranscription);
     const [isSaved, setIsSaved] = useState(false);
 
     const toggleMic = useCallback(async () => {
@@ -112,7 +114,8 @@ const TextRecordComponentDeepGram = () => {
                 if (newCaption !== "") {
                   setCaption(newCaption);
                   if(isFinal) {
-                    setFullTranscription((prev) => prev + ' ' + newCaption);
+                    const currentFullTranscription = fullTranscription;
+                    setFullTranscription(currentFullTranscription+ ' ' + newCaption);
                   }
                 }
               });
