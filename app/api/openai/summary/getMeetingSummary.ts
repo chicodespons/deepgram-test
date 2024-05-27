@@ -5,7 +5,7 @@ const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
 });
 
-export async function getMeetingSummary(transcript: string) {
+export async function getMeetingSummary(transcript: string, description: string) {
     try {
 
         const response = await openai.chat.completions.create({
@@ -13,7 +13,7 @@ export async function getMeetingSummary(transcript: string) {
             messages: [
                 {
                     role: "system",
-                    content: "Geef mij alle medicamenten dat de patient neemt en voor welke aandoeningen hij die neemt."
+                    content: description
                 },
                 {
                     role: "user",
