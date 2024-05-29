@@ -114,8 +114,8 @@ const TextRecordComponentDeepGram = () => {
                 if (newCaption !== "") {
                   setCaption(newCaption);
                   if(isFinal) {
-                    const currentFullTranscription = fullTranscription;
-                    setFullTranscription(currentFullTranscription+ ' ' + newCaption);
+                    
+                    setFullTranscription((prev) => prev + ' ' + newCaption);
                   }
                 }
               });

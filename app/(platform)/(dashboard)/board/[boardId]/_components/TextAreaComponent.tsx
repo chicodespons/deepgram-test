@@ -140,14 +140,15 @@ const TextAreaComponent = () => {
   };
 
   const handleSummary = async (index: number) => {
-
-    if (!description) {
+    const textAreaDescription = textAreas[index].description
+    if (!textAreaDescription) {
       toast.error("No giveen description.");
       return;
     }
 
     if (fullTranscription) {
-      const response = await getMeetingSummary(fullTranscription, description);
+      console.log(fullTranscription);
+      const response = await getMeetingSummary(fullTranscription, textAreaDescription);
       if (response) {
         const summary = response.choices[0].message.content;
         setTextAreas(prevTextAreas => prevTextAreas.map((textArea, idx) => idx === index ? { ...textArea, content: summary || '' } : textArea));
